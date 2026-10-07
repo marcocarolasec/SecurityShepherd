@@ -33,23 +33,12 @@ public class SecurityBoundaryFilter implements Filter {
     httpResponse.setHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'");
     httpResponse.setHeader("X-Content-Type-Options", "nosniff");
 
-    if (isLegacyChallengeEndpoint(httpRequest)
-        || hasAttackInput(httpRequest.getParameterMap())
-        || isCrossSiteMutation(httpRequest)) {
+    if (hasAttackInput(httpRequest.getParameterMap()) || isCrossSiteMutation(httpRequest)) {
       httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
       return;
     }
 
     chain.doFilter(httpRequest, secureCookieResponse(httpResponse));
-  }
-
-  private boolean isLegacyChallengeEndpoint(HttpServletRequest request) {
-    String path = request.getRequestURI().substring(request.getContextPath().length());
-    return path.startsWith("/challenges/")
-        || path.startsWith("/user/csrfchallenge")
-        || path.startsWith("/root/grantComplete/")
-        || path.startsWith("/root/grantcomplete/")
-        || path.equals("/user/redirect");
   }
 
   private boolean hasAttackInput(Map<String, String[]> parameters) {
@@ -84,31 +73,7 @@ public class SecurityBoundaryFilter implements Filter {
         cookie.setPath("/");
         super.addCookie(cookie);
       }
-
-      @Override
-      public void addHeader(String name, String value) {
-        super.addHeader(name, secureCookieHeader(name, value));
-      }
-
-      @Override
-      public void setHeader(String name, String value) {
-        super.setHeader(name, secureCookieHeader(name, value));
-      }
     };
-  }
-
-  private String secureCookieHeader(String name, String value) {
-    if (!"Set-Cookie".equalsIgnoreCase(name) || value == null) {
-      return value;
-    }
-    String secured = value;
-    if (!secured.toLowerCase().contains("; httponly")) {
-      secured += "; HttpOnly";
-    }
-    if (!secured.toLowerCase().contains("; secure")) {
-      secured += "; Secure";
-    }
-    return secured;
   }
 
   @Override
