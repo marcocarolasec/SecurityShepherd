@@ -1311,6 +1311,15 @@
 
 
 	<filter>
+		<filter-name>SecurityBoundaryFilter</filter-name>
+		<filter-class>servlets.SecurityBoundaryFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>SecurityBoundaryFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
 		<filter-name>SetupFilter</filter-name>
 		<filter-class>servlets.SetupFilter</filter-class>
 	</filter>
