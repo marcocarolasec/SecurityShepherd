@@ -73,7 +73,31 @@ public class SecurityBoundaryFilter implements Filter {
         cookie.setPath("/");
         super.addCookie(cookie);
       }
+
+      @Override
+      public void addHeader(String name, String value) {
+        super.addHeader(name, secureCookieHeader(name, value));
+      }
+
+      @Override
+      public void setHeader(String name, String value) {
+        super.setHeader(name, secureCookieHeader(name, value));
+      }
     };
+  }
+
+  private String secureCookieHeader(String name, String value) {
+    if (!"Set-Cookie".equalsIgnoreCase(name) || value == null) {
+      return value;
+    }
+    String secured = value;
+    if (!secured.toLowerCase().contains("; httponly")) {
+      secured += "; HttpOnly";
+    }
+    if (!secured.toLowerCase().contains("; secure")) {
+      secured += "; Secure";
+    }
+    return secured;
   }
 
   @Override
