@@ -103,7 +103,7 @@ public class CsrfChallengeTargetFour extends HttpServlet {
         log.debug("storedCsrf Token is - '" + storedToken + "'");
 
         if (!userId.equals(plusId)) {
-          if (validCsrfToken(ApplicationRoot, csrfToken)) // Poor CSRF Validation Method
+          if (storedToken.equals(csrfToken))
           {
             log.debug("'Valid' Nonce Value Submitted");
             String userName = (String) ses.getAttribute("userName");

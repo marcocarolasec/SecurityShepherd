@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,6 +61,11 @@ public class CsrfChallengeTargetTwo extends HttpServlet {
 
     PrintWriter out = response.getWriter();
     out.print(getServletInfo());
+    Cookie tokenCookie = Validate.getToken(request.getCookies());
+    if (!Validate.validateTokens(tokenCookie, request.getParameter("csrfToken"))) {
+      response.sendError(HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
     try {
       boolean result = false;
       HttpSession ses = request.getSession(true);

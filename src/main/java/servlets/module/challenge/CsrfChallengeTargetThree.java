@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,6 +61,11 @@ public class CsrfChallengeTargetThree extends HttpServlet {
 
     PrintWriter out = response.getWriter();
     out.print(getServletInfo());
+    Cookie tokenCookie = Validate.getToken(request.getCookies());
+    if (!Validate.validateTokens(tokenCookie, request.getParameter("csrfToken"))) {
+      response.sendError(HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
     try {
       boolean result = false;
       HttpSession ses = request.getSession(true);
@@ -71,16 +77,8 @@ public class CsrfChallengeTargetThree extends HttpServlet {
         log.debug(levelName + " servlet accessed by: " + ses.getAttribute("userName").toString());
         String plusId = request.getParameter("userid");
         log.debug("User Submitted - " + plusId);
-        String csrfParam = null;
-        if (request.getParameter("csrfToken") != null) {
-          csrfParam = (String) request.getParameter("csrfToken");
-          if (csrfParam.isEmpty()) {
-            csrfParam = null;
-          }
-        }
-
         String userId = (String) ses.getAttribute("userStamp");
-        if (!userId.equals(plusId) && csrfParam != null) {
+        if (!userId.equals(plusId)) {
           String ApplicationRoot = getServletContext().getRealPath("");
           String userName = (String) ses.getAttribute("userName");
           String attackerName = Getter.getUserName(ApplicationRoot, plusId);
