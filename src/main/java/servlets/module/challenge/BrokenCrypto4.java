@@ -1,7 +1,6 @@
 package servlets.module.challenge;
 
 import dbProcs.Database;
-import dbProcs.Getter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.Hash;
 import utils.ShepherdLogManager;
 import utils.Validate;
 
@@ -102,22 +100,23 @@ public class BrokenCrypto4 extends HttpServlet {
         ResultSet coupons = prepstmt.executeQuery();
         try {
           if (coupons.next()) {
+            int discount = Math.max(0, Math.min(coupons.getInt(2), 50));
             if (coupons.getInt(1) == 1) // Pineapple
             {
               log.debug("Found coupon for %" + coupons.getInt(2) + " off Pineapple");
-              perCentOffPineapple = coupons.getInt(2);
+              perCentOffPineapple = discount;
             } else if (coupons.getInt(1) == 2) // Orange
             {
               log.debug("Found coupon for %" + coupons.getInt(2) + " off Orange");
-              perCentOffOrange = coupons.getInt(2);
+              perCentOffOrange = discount;
             } else if (coupons.getInt(1) == 3) // Apple
             {
               log.debug("Found coupon for %" + coupons.getInt(2) + " off Apple");
-              perCentOffApple = coupons.getInt(2);
+              perCentOffApple = discount;
             } else if (coupons.getInt(1) == 4) // Banana
             {
               log.debug("Found coupon for %" + coupons.getInt(2) + " off Banana");
-              perCentOffBanana = coupons.getInt(2);
+              perCentOffBanana = discount;
             }
           } else {
             log.debug("Invalid Coupon Code");
@@ -132,7 +131,7 @@ public class BrokenCrypto4 extends HttpServlet {
         appleCost = appleCost - (appleCost * (perCentOffApple / 100));
         bananaCost = bananaCost - (bananaCost * (perCentOffBanana / 100));
         orangeCost = orangeCost - (orangeCost * (perCentOffOrange / 100));
-        int finalCost = pineappleCost + appleCost + bananaAmount + orangeCost;
+        int finalCost = pineappleCost + appleCost + bananaCost + orangeCost;
 
         // Output Order
         htmlOutput =
@@ -147,18 +146,6 @@ public class BrokenCrypto4 extends HttpServlet {
                 + " <a><strong>$"
                 + finalCost
                 + "</strong></a></p>";
-        if (orangeAmount > 0 && orangeCost == 0) {
-          htmlOutput +=
-              "<p>"
-                  + bundle.getString("insecureCryptoStorage.4.freeOranges")
-                  + " - "
-                  + Hash.generateUserSolution(
-                      Getter.getModuleResultFromHash(
-                          getServletContext().getRealPath(""), levelHash),
-                      (String) ses.getAttribute("userName"))
-                  + "</p>";
-        }
-
       } catch (Exception e) {
         log.debug("Didn't complete order: " + e.toString());
         htmlOutput += "<p>" + bundle.getString("insecureCryptoStorage.4.orderFailed") + "</p>";

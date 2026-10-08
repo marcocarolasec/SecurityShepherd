@@ -80,15 +80,17 @@ public class PoorValidation2 extends HttpServlet {
         log.debug("bananaAmount - " + bananaAmount);
 
         // Working out costs
-        int pineappleCost = pineappleAmount * 30;
-        int orangeCost = orangeAmount * 3000;
-        int appleCost = appleAmount * 45;
-        int bananaCost = bananaAmount * 15;
+        long pineappleCost = Math.multiplyExact((long) pineappleAmount, 30L);
+        long orangeCost = Math.multiplyExact((long) orangeAmount, 3000L);
+        long appleCost = Math.multiplyExact((long) appleAmount, 45L);
+        long bananaCost = Math.multiplyExact((long) bananaAmount, 15L);
 
         htmlOutput = new String();
 
         // Work Out Final Cost
-        int finalCost = pineappleCost + orangeCost + bananaCost + appleCost;
+        long finalCost =
+            Math.addExact(
+                Math.addExact(pineappleCost, orangeCost), Math.addExact(bananaCost, appleCost));
 
         // Output Order
         htmlOutput =
@@ -127,8 +129,8 @@ public class PoorValidation2 extends HttpServlet {
   }
 
   private static int validateAmount(int amount) {
-    if (amount < 0) {
-      amount = 0;
+    if (amount < 0 || amount > 10000) {
+      throw new IllegalArgumentException("Invalid item quantity");
     }
     return amount;
   }
