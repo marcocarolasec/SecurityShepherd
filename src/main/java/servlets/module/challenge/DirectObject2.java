@@ -75,6 +75,11 @@ public class DirectObject2 extends HttpServlet {
       try {
         String userId = request.getParameter("userId[]");
         log.debug("User Submitted - " + userId);
+        String authenticatedUserId = (String) ses.getAttribute("userStamp");
+        if (!authenticatedUserId.equals(userId)) {
+          response.sendError(HttpServletResponse.SC_FORBIDDEN);
+          return;
+        }
         String ApplicationRoot = getServletContext().getRealPath("");
         log.debug("Servlet root = " + ApplicationRoot);
         String htmlOutput = new String();
