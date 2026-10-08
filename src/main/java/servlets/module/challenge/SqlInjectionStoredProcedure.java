@@ -73,6 +73,10 @@ public class SqlInjectionStoredProcedure extends HttpServlet {
       try {
         String userIdentity = request.getParameter("userIdentity");
         log.debug("User Submitted - " + userIdentity);
+        if (!Validate.isValidEmailAddress(userIdentity)) {
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+          return;
+        }
         String ApplicationRoot = getServletContext().getRealPath("");
 
         log.debug("Getting Connection to Database");
