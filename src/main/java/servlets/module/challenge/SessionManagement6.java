@@ -1,7 +1,6 @@
 package servlets.module.challenge;
 
 import dbProcs.Database;
-import dbProcs.Getter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -19,7 +18,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owasp.encoder.Encode;
-import utils.Hash;
 import utils.ShepherdLogManager;
 import utils.Validate;
 
@@ -138,25 +136,9 @@ public class SessionManagement6 extends HttpServlet {
             log.debug("Executing authUser");
             ResultSet resultSet = callstmt.executeQuery();
             if (resultSet.next()) {
-              // This should never happen. But just in case;
-              log.debug("Successful Login");
-              // Get key and add it to the output
-              String userKey =
-                  Hash.generateUserSolution(
-                      Getter.getModuleResultFromHash(ApplicationRoot, levelHash),
-                      (String) ses.getAttribute("userName"));
-              htmlOutput =
-                  "<h2 class='title'>"
-                      + bundle.getString("response.welcome")
-                      + " "
-                      + Encode.forHtml(resultSet.getString(1))
-                      + "</h2>"
-                      + "<p>"
-                      + bundle.getString("response.resultKey")
-                      + " <a>"
-                      + userKey
-                      + "</a>"
-                      + "</p>";
+              log.debug("Legacy challenge credentials rejected");
+              userAddress = bundle.getString("response.badUser") + "<br/>";
+              htmlOutput = makeTable(userAddress, bundle);
             } else {
               log.debug("Incorrect credentials, checking if user name correct");
               callstmt = conn.prepareStatement("SELECT userAddress FROM users WHERE userName = ?");

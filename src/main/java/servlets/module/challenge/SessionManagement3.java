@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owasp.encoder.Encode;
-import utils.Hash;
 import utils.ShepherdLogManager;
 import utils.Validate;
 
@@ -123,21 +121,9 @@ public class SessionManagement3 extends HttpServlet {
         if (resultSet.next()) {
           log.debug("Successful login");
           if (resultSet.getString(3).equalsIgnoreCase("admin")) {
-            log.debug("Successful Admin Login");
-            String userKey =
-                Hash.generateUserSolution(levelResult, (String) ses.getAttribute("userName"));
-            htmlOutput =
-                "<h2 class='title'>"
-                    + bundle.getString("response.welcome")
-                    + " "
-                    + Encode.forHtml(resultSet.getString(1))
-                    + "</h2>"
-                    + "<p>"
-                    + bundle.getString("response.resultKey")
-                    + " <a>"
-                    + userKey
-                    + "</a>"
-                    + "</p>";
+            log.debug("Legacy administrator login rejected");
+            userAddress = bundle.getString("response.badUser") + "<br/>";
+            htmlOutput = makeTable(userAddress, bundle);
           } else {
             log.debug("Successful Guest Login");
             htmlOutput =

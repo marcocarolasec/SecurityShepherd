@@ -1,7 +1,6 @@
 package servlets.module.challenge;
 
 import dbProcs.Database;
-import dbProcs.Getter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -16,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owasp.encoder.Encode;
-import utils.Hash;
 import utils.ShepherdLogManager;
 import utils.Validate;
 
@@ -119,24 +116,9 @@ public class SessionManagement2 extends HttpServlet {
         log.debug("Executing authUser");
         ResultSet resultSet = callstmt.executeQuery();
         if (resultSet.next()) {
-          log.debug("Successful Login");
-          // Get key and add it to the output
-          String userKey =
-              Hash.generateUserSolution(
-                  Getter.getModuleResultFromHash(ApplicationRoot, levelHash),
-                  (String) ses.getAttribute("userName"));
-          htmlOutput =
-              "<h2 class='title'>"
-                  + bundle.getString("response.welcome")
-                  + " "
-                  + Encode.forHtml(resultSet.getString(1))
-                  + "</h2>"
-                  + "<p>"
-                  + bundle.getString("response.resultKey")
-                  + " <a>"
-                  + userKey
-                  + "</a>"
-                  + "</p>";
+          log.debug("Legacy challenge credentials rejected");
+          userAddress = bundle.getString("response.badUser") + "<br/>";
+          htmlOutput = makeTable(userAddress, bundle);
         } else {
           // Return the same response for every authentication failure. Looking the user up after a
           // failed login both disclosed whether the account existed and exposed its email address.
