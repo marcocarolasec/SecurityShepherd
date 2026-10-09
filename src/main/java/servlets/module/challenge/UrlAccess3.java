@@ -94,8 +94,8 @@ public class UrlAccess3 extends HttpServlet {
           String decodedCookie = new String(decodedCookieBytes, "UTF-8");
           log.debug("Decoded Cookie: " + decodedCookie);
 
-          if (decodedCookie.equals("MrJohnReillyTheSecond")) {
-            log.debug("Super Admin Cookie detected");
+          if ("admin".equals(ses.getAttribute("userRole"))) {
+            log.debug("Authorized administrator session detected");
             // Get key and add it to the output
             String userKey =
                 Hash.generateUserSolution(
