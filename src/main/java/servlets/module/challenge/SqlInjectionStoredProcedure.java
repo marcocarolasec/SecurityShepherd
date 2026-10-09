@@ -106,7 +106,7 @@ public class SqlInjectionStoredProcedure extends HttpServlet {
                   + "</td><td>"
                   + Encode.forHtml(resultSet.getString(3))
                   + "</td><td>"
-                  + Encode.forHtml(resultSet.getString(4))
+                  + ""
                   + "</td></tr>";
           i++;
         }

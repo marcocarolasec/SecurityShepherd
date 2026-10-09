@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.Hash;
 import utils.ShepherdLogManager;
 import utils.Validate;
 
@@ -112,21 +111,16 @@ public class SecurityMisconfigStealTokens extends HttpServlet {
           // User submitted something different from their cookie
           boolean notUsersTokenButValid = validToken(userId, cookieValue, applicationRoot);
           if (notUsersTokenButValid) {
-            log.debug("Valid Cookie of another User Dectected");
-            // Get key and add it to the output
-            String userKey =
-                Hash.generateUserSolution(levelResult, (String) ses.getAttribute("userName"));
+            log.debug("Cookie belonging to another user rejected");
             htmlOutput =
-                "<h2 class='title'>"
-                    + bundle.getString("securityMisconfig.servlet.stealTokens.complete")
-                    + "</h2>"
-                    + "<p>"
-                    + bundle.getString("securityMisconfig.servlet.stealTokens.youDidIt")
-                    + " "
-                    + "<a>"
-                    + userKey
-                    + "</a>"
-                    + "</p>";
+                new String(
+                    "<h2 class='title'>"
+                        + bundle.getString("securityMisconfig.servlet.stealTokens.notComplete")
+                        + "</h2>"
+                        + "<p>"
+                        + bundle.getString(
+                            "securityMisconfig.servlet.stealTokens.notComplete.message")
+                        + "<p>");
           } else {
             htmlOutput =
                 new String(
