@@ -1,7 +1,6 @@
 package servlets.module.challenge;
 
 import dbProcs.Database;
-import dbProcs.Getter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -19,8 +18,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owasp.encoder.Encode;
-import utils.Hash;
 import utils.ShepherdLogManager;
 import utils.Validate;
 
@@ -118,23 +115,14 @@ public class SessionManagement7SecretQuestion extends HttpServlet {
               log.debug("Running secret Answer Check");
               ResultSet rs = callstmt.executeQuery();
               if (rs.next()) {
-                log.debug("Correct Answer Submitted");
-                // Get key and add it to the output
-                String userKey =
-                    Hash.generateUserSolution(
-                        Getter.getModuleResultFromHash(ApplicationRoot, levelHash),
-                        (String) ses.getAttribute("userName"));
+                // Knowledge-based questions with a seven-item answer space are not authentication.
+                // Do not grant access solely on this weak factor.
+                log.debug("Secret answer accepted but insufficient for authentication");
                 htmlOutput =
                     "<h2 class='title'>"
-                        + bundle.getString("response.welcome")
-                        + " "
-                        + Encode.forHtml(rs.getString(1))
-                        + "</h2>"
-                        + "<p>"
-                        + bundle.getString("response.resultKey")
-                        + " <a>"
-                        + userKey
-                        + "</a>"
+                        + bundle.getString("question.badAnswer")
+                        + "</h2><p>"
+                        + bundle.getString("question.whoAreYou")
                         + "</p>";
               } else {
                 log.debug("Bad Answer Submitted");
